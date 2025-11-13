@@ -14,5 +14,5 @@ hours = 16
 days = 30
 lanes = 50
 
-arrival_rate = sept_15_19['Total Passengers'].sum() / (hours * days * lanes)
+arrival_rate = sept_15_19['Total Passengers'].sum() / (hours * days * lanes * 60)
 print(arrival_rate)
