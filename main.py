@@ -127,7 +127,7 @@ mean_T_Wqs = []
 for lam in lambdas:
     rep_means = []
     for _ in range(num_reps):
-        sim = DE_sim(arrival_rate=lam,
+        sim = DES_sim(arrival_rate=lam,
                      service_time=service_time,
                      num_servers=1,
                      num_passengers=num_passengers,
