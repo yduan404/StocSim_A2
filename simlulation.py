@@ -164,7 +164,7 @@ a_list = np.empty(40)
 b_list = np.empty(40)
 
 for i in range(40):
-    base_list = run_simulation(lambda_value, 1, 0.25, 1, 3000, 0)
+    base_list[i] = run_simulation(lambda_value, 1, 0.25, 1, 3000, 0)
     a_list[i] = run_simulation(lambda_value, 1, 0.25, 2, 3000, 0)
     b_list[i] = run_simulation(lambda_value, 1, 0.1, 1, 3000, 0)
 
@@ -172,9 +172,11 @@ base_mean = np.mean(base_list)
 a_mean = np.mean(a_list)
 b_mean = np.mean(b_list)
 
-# t-tests
-t_a, p_a = stats.ttest_1samp(a_list, base_mean)
-t_b, p_b = stats.ttest_1samp(b_list, base_mean)
+# t-tests (two-sample)
+# alternative (H_1) is less -> waiting time is reduced. 
+# variance is not assumed to be equal -> using Welch's t-test
+t_a, p_a = stats.ttest_ind(a_list, base_list, equal_var=False, alternative="less")
+t_b, p_b = stats.ttest_ind(b_list, base_list, equal_var=False, alternative="less")
 
 # output
 print("=========================2B=========================")
