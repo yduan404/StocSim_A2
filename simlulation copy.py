@@ -202,37 +202,3 @@ else:
     print("The p-value is smaller than 0.05, Option B shows statistically significant improvement.")
 
 
-# calculate minimum servers needed
-target_wait = 10  # set ideal waiting time as 10 minutes
-
-server_counts = []
-avg_wait_times = []
-min_servers_needed = -1
-
-for num_servers in range(1, 15):
-    results = []
-    for i in range(40):
-        avg_wait = run_simulation(lambda_value, 1, 0.25, num_servers=num_servers, num_passengers=3000, warmup_count=0)
-        results.append(avg_wait)
-
-    final_avg = np.mean(results)
-    server_counts.append(num_servers)
-    avg_wait_times.append(final_avg)
-
-    if final_avg < target_wait and min_servers_needed == -1:
-        min_servers_needed = num_servers
-        print(f"we need at least {num_servers} servers to keep waiting time below {target_wait:.3f}")
-
-# plotting
-plt.figure(figsize=(10, 6))
-plt.plot(server_counts, avg_wait_times, marker="o", linestyle="-", label="Average Wait Time")
-plt.axhline(y=target_wait, color="r", label=f"target waiting time ({target_wait} min)")
-if min_servers_needed != -1:
-    plt.axvline(x=min_servers_needed, color='g', label=f'min servers ({min_servers_needed})')
-plt.title("average waiting time vs. number of servers")
-plt.xlabel("number of servers")
-plt.ylabel("average waiting time in minutes")
-plt.legend()
-plt.grid(True)
-plt.xticks(range(1, 15))
-plt.show()
