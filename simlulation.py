@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
+import scipy.integrate as integrate
 
 #--------------------------------
 # part 1: calculate arrival rate
@@ -33,7 +34,7 @@ def get_service_time(mean, std):
 
     return time
 
-def run_simulation(lambda_value, service_mean, service_std, num_servers, num_passengers, warmup_count, plot=False):
+def run_simulation(lambda_value, service_mean, service_std, num_servers, num_passengers, warmup_count, plot=False, label=None):
     # initialize 
     current_time = 0.0
     busy_servers = 0
@@ -45,6 +46,9 @@ def run_simulation(lambda_value, service_mean, service_std, num_servers, num_pas
     # counters
     served_count = 0
     passenger_count = 0    # how many passengers that we have
+
+    queueLen = []
+    timestamps = []
 
     # the first arrival event
     first_time = np.random.exponential(1.0 / lambda_value)
@@ -69,6 +73,9 @@ def run_simulation(lambda_value, service_mean, service_std, num_servers, num_pas
         
         # update global clock
         current_time = now
+
+        queueLen.append(len(queue))
+        timestamps.append(current_time)
 
         # handle arrival events
         if event_type == "ARRIVAL":
@@ -126,8 +133,7 @@ def run_simulation(lambda_value, service_mean, service_std, num_servers, num_pas
                 events.append([depart_time, "DEPARTURE", next_passenger_id])
 
     if plot:
-        plt.plot(final_wait_times)
-        plt.show()
+        plt.plot(timestamps, queueLen, label=label)
 
     # warm-up period removal
     if len(final_wait_times) > warmup_count:
@@ -140,10 +146,20 @@ std = 0.25
 test_utilization = 0.85
 test_lambda = test_utilization / eb
 
-run_simulation(lambda_value, 1, 0.25, 1, 3000, 1000, plot=True)
+# second moment of truncated distribution
+def secondMomentTruncatedNormal(mean, std):
+    f = lambda t : np.exp(-.5 * (t - mean) ** 2 / (std ** 2)) / (std * np.sqrt(2 * np.pi))
+
+    xi, err = integrate.quad(f, 0, np.inf)
+
+    f_S2 = lambda t : np.exp(-.5 * (t - mean) ** 2 / (std ** 2)) / (std * np.sqrt(2 * np.pi)) * t ** 2 / xi
+
+    S2, err = integrate.quad(f_S2, 0, np.inf)
+
+    return S2
 
 # theoretical average wait time using P-K formula 
-theoretical_wait = (test_lambda * (eb ** 2 + std ** 2)) / (2 * (1 - test_utilization))
+theoretical_wait = (test_lambda * secondMomentTruncatedNormal(eb, std)) / (2 * (1 - test_utilization))
 
 # run 40 simulations
 R = np.empty(40)
@@ -171,6 +187,15 @@ else:
 #--------------------------------
 # part 2B: evaluating interventions
 #--------------------------------
+
+run_simulation(lambda_value, 1, 0.25, 1, 3000, 0, plot=True, label="Baseline")
+run_simulation(lambda_value, 1, 0.25, 2, 3000, 0, plot=True, label="Option A")
+run_simulation(lambda_value, 1, 0.1, 1, 3000, 0, plot=True, label="Option B")
+plt.xlabel("Time")
+plt.ylabel("Queue length")
+plt.title("Queue length vs time")
+plt.legend()
+plt.show()
 
 base_list = np.empty(40)
 a_list = np.empty(40)
