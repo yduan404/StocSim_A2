@@ -398,10 +398,6 @@ def timeslot_simulation(lambda_value, service_mean, service_std, num_servers, nu
 
 
 # plot A: compare between options
-# the result is not very visible, prob because lambda is too big and the time slot thing cant help too much
-# so i came up with plot B testing diff lambda values <1
-# dont know if we keep this one or not
-
 num_servers_range = range(1, 11)
 avg_wait_random = []
 avg_wait_timeslot = []
@@ -436,8 +432,8 @@ plt.show()
 
 # plot B: avg waiting time vs. lambda
 # the plot is to show the difference of the trend as the airport gets busier
-# also what i think is important is the difference maximizes when approaching 1, the result seems nice!
 
+# set lambda values
 lambdas = np.linspace(0.5, 0.99, 25) 
 
 avg_wait_random = []
