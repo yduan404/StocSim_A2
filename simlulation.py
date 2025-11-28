@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
+import scipy.integrate as integrate
 
 #--------------------------------
 # part 1: calculate arrival rate
@@ -140,8 +141,20 @@ test_lambda = test_utilization / eb
 
 run_simulation(lambda_value, 1, 0.25, 1, 3000, 1000, plot=True)
 
+# second moment of truncated distribution
+def secondMomentTruncatedNormal(mean, std):
+    f = lambda t : np.exp(-.5 * (t - mean) ** 2 / (std ** 2)) / (std * np.sqrt(2 * np.pi))
+
+    xi, err = integrate.quad(f, 0, np.inf)
+
+    f_S2 = lambda t : np.exp(-.5 * (t - mean) ** 2 / (std ** 2)) / (std * np.sqrt(2 * np.pi)) * t ** 2 / xi
+
+    S2, err = integrate.quad(f_S2, 0, np.inf)
+
+    return S2
+
 # theoretical average wait time using P-K formula 
-theoretical_wait = (test_lambda * (eb ** 2 + std ** 2)) / (2 * (1 - test_utilization))
+theoretical_wait = (test_lambda * secondMomentTruncatedNormal(eb, std)) / (2 * (1 - test_utilization))
 
 # run 40 simulations
 R = np.empty(40)
