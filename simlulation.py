@@ -19,6 +19,8 @@ lanes = 50
 
 lambda_value = sept_15_19['Total Passengers'].mean() / (hours * days * lanes * 60)
 
+print("=========================1=========================")
+print(f"the arrival rate is {lambda_value:.3f} passgengers per minute.")
 
 # --------------------------------
 # part 2A: simulate and validate the queuing system
