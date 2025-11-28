@@ -86,6 +86,8 @@ def run_simulation(lambda_value, service_mean, service_std, num_servers, num_pas
                 # service time for this passenger
                 service_time = get_service_time(service_mean, service_std)
                 depart_time = now + service_time
+
+                # put departure event in the list
                 events.append([depart_time, "DEPARTURE", passenger_id])
                 
             else:
